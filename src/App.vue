@@ -3,6 +3,7 @@
     <div v-if="!mobile" class="app flex flex-column">
       <Navigation />
       <div class="app-content flex flex-column">
+        <Invoice-modal />
         <router-view />
       </div>
     </div>
@@ -14,6 +15,7 @@
 </template>
 
 <script>
+import InvoiceModal from "./components/InvoiceModal.vue";
 import Navigation from "./components/Navigation.vue";
 export default {
   data() {
@@ -21,7 +23,7 @@ export default {
       mobile: null,
     };
   },
-  components: { Navigation },
+  components: { Navigation, InvoiceModal },
   methods: {
     checkScreenSize() {
       const windowWidth = window.innerWidth;

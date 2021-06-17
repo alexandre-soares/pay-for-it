@@ -75,7 +75,7 @@ export default {
 
       .filter {
         position: relative;
-        cursor: pointer;
+        cursor: comm;
         margin-right: 40px;
 
         img {
