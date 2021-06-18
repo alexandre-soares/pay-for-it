@@ -45,7 +45,6 @@ export default {
       this.filterMenu = !this.filterMenu;
     },
     newInvoice() {
-      console.log("newInvoice");
       this.TOGGLE_INVOICE();
     },
   },
