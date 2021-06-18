@@ -5,6 +5,7 @@
     ref="invoice-wrap"
   >
     <form @submit.prevent="submitForm" class="invoice-content">
+      <Loading v-show="loading" />
       <h1>New Invoice</h1>
 
       <!-- Bill From -->
@@ -184,10 +185,11 @@
 
 <script>
 import db from "../firebase/firebaseInit";
-
 import { mapMutations } from "vuex";
 import { uid } from "uid";
+import Loading from "./Loading.vue";
 export default {
+  components: { Loading },
   name: "InvoiceModal",
   data() {
     return {
@@ -216,6 +218,7 @@ export default {
         month: "short",
         day: "numeric",
       },
+      loading: null,
     };
   },
   methods: {
@@ -255,10 +258,11 @@ export default {
         return;
       }
 
+      this.loading = true;
+
       this.calcInvoiceTotal();
 
       const dataBase = db.collection("invoices").doc();
-
       await dataBase.set({
         invoiceId: uid(6),
         billerStreetAddress: this.billerStreetAddress,
@@ -283,6 +287,8 @@ export default {
         invoiceDraft: this.invoiceDraft,
         invoicePaid: null,
       });
+      this.loading = false;
+
 
       this.TOGGLE_INVOICE();
     },
