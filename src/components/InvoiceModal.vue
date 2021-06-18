@@ -229,6 +229,10 @@ export default {
   height: 100vh;
   overflow: scroll;
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   @media (min-width: 900px) {
     left: 90px;
   }
