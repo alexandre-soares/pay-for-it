@@ -129,6 +129,7 @@
             required
           />
         </div>
+
         <div class="work-items">
           <h3>Item List</h3>
           <table class="item-list">
@@ -136,7 +137,7 @@
               <th class="item-name">Item Name</th>
               <th class="qty">Qty</th>
               <th class="price">Price</th>
-              <th class="total">Total</th>
+              <th class="total">Toal</th>
             </tr>
             <tr
               class="table-items flex"
@@ -146,24 +147,23 @@
               <td class="item-name">
                 <input type="text" v-model="item.itemName" />
               </td>
-              <td class="qty"><input type="number" v-model="item.qty" /></td>
-              <td class="price">
-                <input type="number" v-model="item.price" />
-              </td>
+              <td class="qty"><input type="text" v-model="item.qty" /></td>
+              <td class="price"><input type="text" v-model="item.price" /></td>
               <td class="total flex">
                 ${{ (item.total = item.qty * item.price) }}
               </td>
               <img
+                @click="deleteInvoiceItem(item.id)"
                 src="@/assets/icon-delete.svg"
                 alt="icon"
-                @click="deleteInvoiceItem(item.id)"
+                style="cursor: pointer"
               />
             </tr>
           </table>
 
-          <div @click="addNewInvoice" class="flex button">
-            <img src="@/assets/icon-plus.svg" alt="icon" />
-            Add new Item
+          <div @click="addNewInvoiceItem" class="flex button">
+            <img src="@/assets/icon-plus.svg" alt="" />
+            Add New Item
           </div>
         </div>
       </div>
@@ -184,6 +184,7 @@
 
 <script>
 import { mapMutations } from "vuex";
+import { uid } from "uid";
 export default {
   name: "InvoiceModal",
   data() {
@@ -219,6 +220,20 @@ export default {
     ...mapMutations(["TOGGLE_INVOICE"]),
     closeInvoice() {
       this.TOGGLE_INVOICE();
+    },
+    addNewInvoiceItem() {
+      this.invoiceItemList.push({
+        id: uid(),
+        itemName: "",
+        qty: "",
+        price: 0,
+        total: 0,
+      });
+    },
+    deleteInvoiceItem(id) {
+      this.invoiceItemList = this.invoiceItemList.filter(
+        (item) => item.id !== id
+      );
     },
   },
   created() {
@@ -318,43 +333,34 @@ export default {
       .work-items {
         .item-list {
           width: 100%;
-
           // Item Table Styling
           .table-heading,
-          .table.items {
+          .table-items {
             gap: 16px;
             font-size: 12px;
-
             .item-name {
               flex-basis: 50%;
             }
-
             .qty {
               flex-basis: 10%;
             }
-
             .price {
               flex-basis: 20%;
             }
-
             .total {
               flex-basis: 20%;
               align-self: center;
             }
           }
-
           .table-heading {
             margin-bottom: 16px;
-
             th {
               text-align: left;
             }
           }
-
           .table-items {
             position: relative;
             margin-bottom: 24px;
-
             img {
               position: absolute;
               top: 15px;
@@ -364,14 +370,12 @@ export default {
             }
           }
         }
-
         .button {
           color: #fff;
           background-color: #252945;
           align-items: center;
           justify-content: center;
           width: 100%;
-
           img {
             margin-right: 4px;
           }
