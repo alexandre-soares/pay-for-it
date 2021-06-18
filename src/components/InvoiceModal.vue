@@ -183,6 +183,7 @@
 </template>
 
 <script>
+import { mapMutations } from "vuex";
 export default {
   name: "InvoiceModal",
   data() {
@@ -208,6 +209,12 @@ export default {
       invoiceItemList: [],
       invoiceTotal: 0,
     };
+  },
+  methods: {
+    ...mapMutations(["TOGGLE_INVOICE"]),
+    closeInvoice() {
+      this.TOGGLE_INVOICE();
+    },
   },
 };
 </script>
@@ -376,12 +383,16 @@ export default {
     background-color: #1e2139;
     color: #fff;
     border-radius: 4px;
-    padding: 12px 4px;
+    padding: 12px 8px;
     border: none;
 
     &:focus {
       outline: none;
     }
+  }
+
+  select {
+    cursor: pointer;
   }
 }
 </style>
