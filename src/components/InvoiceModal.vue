@@ -2,7 +2,7 @@
   <div
     class="invoice-wrap flex flex-column"
     @click="checkClick"
-    ref="invoice-wrap"
+    ref="invoiceWrap"
   >
     <form @submit.prevent="submitForm" class="invoice-content">
       <Loading v-show="loading" />
@@ -172,11 +172,17 @@
       <!-- Save/Exit -->
       <div class="save flex">
         <div class="left">
-          <button class="red" @click="closeInvoice">Cancel</button>
+          <button type="button" class="red" @click="closeInvoice">
+            Cancel
+          </button>
         </div>
         <div class="right">
-          <button class="dark-purple" @click="saveDraft">Save Draft</button>
-          <button class="purple" @click="publishInvoice">Create Invoice</button>
+          <button type="submit" class="dark-purple" @click="saveDraft">
+            Save Draft
+          </button>
+          <button type="submit" class="purple" @click="publishInvoice">
+            Create Invoice
+          </button>
         </div>
       </div>
     </form>
@@ -222,9 +228,14 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(["TOGGLE_INVOICE"]),
+    ...mapMutations(["TOGGLE_INVOICE", "TOGGLE_MODAL"]),
     closeInvoice() {
       this.TOGGLE_INVOICE();
+    },
+    checkClick(e) {
+      if (e.target === this.$refs.invoiceWrap) {
+        this.TOGGLE_MODAL();
+      }
     },
     addNewInvoiceItem() {
       this.invoiceItemList.push({
@@ -288,7 +299,6 @@ export default {
         invoicePaid: null,
       });
       this.loading = false;
-
 
       this.TOGGLE_INVOICE();
     },
