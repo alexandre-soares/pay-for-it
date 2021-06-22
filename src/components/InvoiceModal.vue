@@ -1,12 +1,13 @@
 <template>
   <div
-    class="invoice-wrap flex flex-column"
     @click="checkClick"
     ref="invoiceWrap"
+    class="invoice-wrap flex flex-column"
   >
     <form @submit.prevent="submitForm" class="invoice-content">
       <Loading v-show="loading" />
-      <h1>New Invoice</h1>
+      <h1 v-if="!editInvoice">New Invoice</h1>
+      <h1 v-else>Edit Invoice</h1>
 
       <!-- Bill From -->
       <div class="bill-from flex flex-column">
@@ -14,33 +15,33 @@
         <div class="input flex flex-column">
           <label for="billerStreetAddress">Street Address</label>
           <input
+            required
             type="text"
             id="billerStreetAddress"
             v-model="billerStreetAddress"
-            required
           />
         </div>
         <div class="location-details flex">
           <div class="input flex flex-column">
             <label for="billerCity">City</label>
-            <input type="text" id="billerCity" v-model="billerCity" required />
+            <input required type="text" id="billerCity" v-model="billerCity" />
           </div>
           <div class="input flex flex-column">
             <label for="billerZipCode">Zip Code</label>
             <input
+              required
               type="text"
               id="billerZipCode"
               v-model="billerZipCode"
-              required
             />
           </div>
           <div class="input flex flex-column">
             <label for="billerCountry">Country</label>
             <input
+              required
               type="text"
               id="billerCountry"
               v-model="billerCountry"
-              required
             />
           </div>
         </div>
@@ -50,43 +51,43 @@
       <div class="bill-to flex flex-column">
         <h4>Bill To</h4>
         <div class="input flex flex-column">
-          <label for="clientName">Client Name</label>
-          <input type="text" id="clientName" v-model="clientName" required />
+          <label for="clientName">Client's Name</label>
+          <input required type="text" id="clientName" v-model="clientName" />
         </div>
         <div class="input flex flex-column">
-          <label for="clientEmail">Client Email</label>
-          <input type="text" id="clientEmail" v-model="clientEmail" required />
+          <label for="clientEmail">Client's Email</label>
+          <input required type="text" id="clientEmail" v-model="clientEmail" />
         </div>
         <div class="input flex flex-column">
           <label for="clientStreetAddress">Street Address</label>
           <input
+            required
             type="text"
             id="clientStreetAddress"
             v-model="clientStreetAddress"
-            required
           />
         </div>
         <div class="location-details flex">
           <div class="input flex flex-column">
             <label for="clientCity">City</label>
-            <input type="text" id="clientCity" v-model="clientCity" required />
+            <input required type="text" id="clientCity" v-model="clientCity" />
           </div>
           <div class="input flex flex-column">
-            <label for="clientZipCode">Client Zip Code</label>
+            <label for="clientZipCode">Zip Code</label>
             <input
+              required
               type="text"
               id="clientZipCode"
               v-model="clientZipCode"
-              required
             />
           </div>
           <div class="input flex flex-column">
-            <label for="clientCountry">Client Country</label>
+            <label for="clientCountry">Country</label>
             <input
+              required
               type="text"
               id="clientCountry"
               v-model="clientCountry"
-              required
             />
           </div>
         </div>
@@ -98,25 +99,25 @@
           <div class="input flex flex-column">
             <label for="invoiceDate">Invoice Date</label>
             <input
+              disabled
               type="text"
               id="invoiceDate"
               v-model="invoiceDate"
-              disabled
             />
           </div>
           <div class="input flex flex-column">
             <label for="paymentDueDate">Payment Due</label>
             <input
+              disabled
               type="text"
               id="paymentDueDate"
               v-model="paymentDueDate"
-              disabled
             />
           </div>
         </div>
         <div class="input flex flex-column">
           <label for="paymentTerms">Payment Terms</label>
-          <select id="paymentTerms" v-model="paymentTerms" required>
+          <select required type="text" id="paymentTerms" v-model="paymentTerms">
             <option value="30">Net 30 Days</option>
             <option value="60">Net 60 Days</option>
           </select>
@@ -124,13 +125,12 @@
         <div class="input flex flex-column">
           <label for="productDescription">Product Description</label>
           <input
+            required
             type="text"
             id="productDescription"
             v-model="productDescription"
-            required
           />
         </div>
-
         <div class="work-items">
           <h3>Item List</h3>
           <table class="item-list">
@@ -138,7 +138,7 @@
               <th class="item-name">Item Name</th>
               <th class="qty">Qty</th>
               <th class="price">Price</th>
-              <th class="total">Total</th>
+              <th class="total">Toal</th>
             </tr>
             <tr
               class="table-items flex"
@@ -156,8 +156,7 @@
               <img
                 @click="deleteInvoiceItem(item.id)"
                 src="@/assets/icon-delete.svg"
-                alt="icon"
-                style="cursor: pointer"
+                alt=""
               />
             </tr>
           </table>
@@ -172,16 +171,29 @@
       <!-- Save/Exit -->
       <div class="save flex">
         <div class="left">
-          <button type="button" class="red" @click="closeInvoice">
+          <button type="button" @click="closeInvoice" class="red">
             Cancel
           </button>
         </div>
-        <div class="right">
-          <button type="submit" class="dark-purple" @click="saveDraft">
+        <div class="right flex">
+          <button
+            v-if="!editInvoice"
+            type="submit"
+            @click="saveDraft"
+            class="dark-purple"
+          >
             Save Draft
           </button>
-          <button type="submit" class="purple" @click="publishInvoice">
+          <button
+            v-if="!editInvoice"
+            type="submit"
+            @click="publishInvoice"
+            class="purple"
+          >
             Create Invoice
+          </button>
+          <button v-if="editInvoice" type="sumbit" class="purple">
+            Update Invoice
           </button>
         </div>
       </div>
@@ -191,14 +203,16 @@
 
 <script>
 import db from "../firebase/firebaseInit";
-import { mapMutations } from "vuex";
+import Loading from "../components/Loading";
+import { mapActions, mapMutations, mapState } from "vuex";
 import { uid } from "uid";
-import Loading from "./Loading.vue";
 export default {
-  components: { Loading },
-  name: "InvoiceModal",
+  name: "invoiceModal",
   data() {
     return {
+      dateOptions: { year: "numeric", month: "short", day: "numeric" },
+      docId: null,
+      loading: null,
       billerStreetAddress: null,
       billerCity: null,
       billerZipCode: null,
@@ -219,22 +233,57 @@ export default {
       invoiceDraft: null,
       invoiceItemList: [],
       invoiceTotal: 0,
-      dateOptions: {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      },
-      loading: null,
     };
   },
+  components: {
+    Loading,
+  },
+  created() {
+    // get current date for invoice date field
+    if (!this.editInvoice) {
+      this.invoiceDateUnix = Date.now();
+      this.invoiceDate = new Date(this.invoiceDateUnix).toLocaleDateString(
+        "en-us",
+        this.dateOptions
+      );
+    }
+    if (this.editInvoice) {
+      const currentInvoice = this.currentInvoiceArray[0];
+      this.docId = currentInvoice.docId;
+      this.billerStreetAddress = currentInvoice.billerStreetAddress;
+      this.billerCity = currentInvoice.billerCity;
+      this.billerZipCode = currentInvoice.billerZipCode;
+      this.billerCountry = currentInvoice.billerCountry;
+      this.clientName = currentInvoice.clientName;
+      this.clientEmail = currentInvoice.clientEmail;
+      this.clientStreetAddress = currentInvoice.clientStreetAddress;
+      this.clientCity = currentInvoice.clientCity;
+      this.clientZipCode = currentInvoice.clientZipCode;
+      this.clientCountry = currentInvoice.clientCountry;
+      this.invoiceDateUnix = currentInvoice.invoiceDateUnix;
+      this.invoiceDate = currentInvoice.invoiceDate;
+      this.paymentTerms = currentInvoice.paymentTerms;
+      this.paymentDueDateUnix = currentInvoice.paymentDueDateUnix;
+      this.paymentDueDate = currentInvoice.paymentDueDate;
+      this.productDescription = currentInvoice.productDescription;
+      this.invoicePending = currentInvoice.invoicePending;
+      this.invoiceDraft = currentInvoice.invoiceDraft;
+      this.invoiceItemList = currentInvoice.invoiceItemList;
+      this.invoiceTotal = currentInvoice.invoiceTotal;
+    }
+  },
   methods: {
-    ...mapMutations(["TOGGLE_INVOICE", "TOGGLE_MODAL"]),
-    closeInvoice() {
-      this.TOGGLE_INVOICE();
-    },
+    ...mapMutations(["TOGGLE_INVOICE", "TOGGLE_MODAL", "TOGGLE_EDIT_INVOICE"]),
+    ...mapActions(["UPDATE_INVOICE", "GET_INVOICES"]),
     checkClick(e) {
       if (e.target === this.$refs.invoiceWrap) {
         this.TOGGLE_MODAL();
+      }
+    },
+    closeInvoice() {
+      this.TOGGLE_INVOICE();
+      if (this.editInvoice) {
+        this.TOGGLE_EDIT_INVOICE();
       }
     },
     addNewInvoiceItem() {
@@ -251,7 +300,7 @@ export default {
         (item) => item.id !== id
       );
     },
-    calcInvoiceTotal() {
+    calInvoiceTotal() {
       this.invoiceTotal = 0;
       this.invoiceItemList.forEach((item) => {
         this.invoiceTotal += item.total;
@@ -265,14 +314,11 @@ export default {
     },
     async uploadInvoice() {
       if (this.invoiceItemList.length <= 0) {
-        alert("Please insure you filled out work items!");
+        alert("Please ensure you filled out work items!");
         return;
       }
-
       this.loading = true;
-
-      this.calcInvoiceTotal();
-
+      this.calInvoiceTotal();
       const dataBase = db.collection("invoices").doc();
       await dataBase.set({
         invoiceId: uid(6),
@@ -299,20 +345,52 @@ export default {
         invoicePaid: null,
       });
       this.loading = false;
-
       this.TOGGLE_INVOICE();
+      this.GET_INVOICES();
+    },
+    async updateInvoice() {
+      if (this.invoiceItemList.length <= 0) {
+        alert("Please ensure you filled out work items!");
+        return;
+      }
+      this.loading = true;
+      this.calInvoiceTotal();
+      const dataBase = db.collection("invoices").doc(this.docId);
+      await dataBase.update({
+        billerStreetAddress: this.billerStreetAddress,
+        billerCity: this.billerCity,
+        billerZipCode: this.billerZipCode,
+        billerCountry: this.billerCountry,
+        clientName: this.clientName,
+        clientEmail: this.clientEmail,
+        clientStreetAddress: this.clientStreetAddress,
+        clientCity: this.clientCity,
+        clientZipCode: this.clientZipCode,
+        clientCountry: this.clientCountry,
+        paymentTerms: this.paymentTerms,
+        paymentDueDate: this.paymentDueDate,
+        paymentDueDateUnix: this.paymentDueDateUnix,
+        productDescription: this.productDescription,
+        invoiceItemList: this.invoiceItemList,
+        invoiceTotal: this.invoiceTotal,
+      });
+      this.loading = false;
+      const data = {
+        docId: this.docId,
+        routeId: this.$route.params.invoiceId,
+      };
+      this.UPDATE_INVOICE(data);
     },
     submitForm() {
+      if (this.editInvoice) {
+        this.updateInvoice();
+        return;
+      }
       this.uploadInvoice();
     },
   },
-  created() {
-    // Get current date for invoice date field
-    this.invoiceDateUnix = Date.now();
-    this.invoiceDate = new Date(this.invoiceDateUnix).toLocaleString(
-      "en-us",
-      this.dateOptions
-    );
+  computed: {
+    ...mapState(["editInvoice", "currentInvoiceArray"]),
   },
   watch: {
     paymentTerms() {
@@ -320,10 +398,9 @@ export default {
       this.paymentDueDateUnix = futureDate.setDate(
         futureDate.getDate() + parseInt(this.paymentTerms)
       );
-      this.paymentDueDate = new Date(this.paymentDueDateUnix).toLocaleString(
-        "en-us",
-        this.dateOptions
-      );
+      this.paymentDueDate = new Date(
+        this.paymentDueDateUnix
+      ).toLocaleDateString("en-us", this.dateOptions);
     },
   },
 };
@@ -334,19 +411,15 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
-  background-color: transparent;
   width: 100%;
   height: 100vh;
   overflow: scroll;
-
   &::-webkit-scrollbar {
     display: none;
   }
-
   @media (min-width: 900px) {
     left: 90px;
   }
-
   .invoice-content {
     position: relative;
     padding: 56px;
@@ -356,50 +429,39 @@ export default {
     color: #fff;
     box-shadow: 10px 4px 6px -1px rgba(0, 0, 0, 0.2),
       0 2px 4px -1px rgba(0, 0, 0, 0.06);
-
     h1 {
       margin-bottom: 48px;
       color: #fff;
     }
-
     h3 {
       margin-bottom: 16px;
       font-size: 18px;
       color: #777f98;
     }
-
     h4 {
       color: #7c5dfa;
       font-size: 12px;
       margin-bottom: 24px;
     }
-
     // Bill To / Bill From
-
     .bill-to,
     .bill-from {
       margin-bottom: 48px;
-
       .location-details {
         gap: 16px;
-
         div {
           flex: 1;
         }
       }
     }
-
     // Invoice Work
-
     .invoice-work {
       .payment {
         gap: 24px;
-
         div {
           flex: 1;
         }
       }
-
       .work-items {
         .item-list {
           width: 100%;
@@ -452,50 +514,34 @@ export default {
         }
       }
     }
-
     .save {
       margin-top: 60px;
-
       div {
         flex: 1;
       }
-
       .right {
-        display: flex;
         justify-content: flex-end;
-
-        button:last-child {
-          margin-right: 0;
-        }
       }
     }
   }
-
   .input {
     margin-bottom: 24px;
   }
-
   label {
     font-size: 12px;
     margin-bottom: 6px;
   }
-
   input,
   select {
     width: 100%;
     background-color: #1e2139;
     color: #fff;
     border-radius: 4px;
-    padding: 12px 8px;
+    padding: 12px 4px;
     border: none;
-
     &:focus {
       outline: none;
     }
-  }
-
-  select {
-    cursor: pointer;
   }
 }
 </style>
